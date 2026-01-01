@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物價統計網</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 70px; /* 為底部導航欄留出空間 */
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            margin-right: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .auth-buttons {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .auth-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .user-name {
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 20px 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        /* 登入/註冊頁面樣式 */
+        .auth-page {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-weight: 500;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .auth-tab.active {
+            color: #4b6cb7;
+            border-bottom: 3px solid #4b6cb7;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.2);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-check-input {
+            margin-right: 8px;
+        }
+        
+        .form-check-label {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .form-check-label a {
+            color: #4b6cb7;
+            text-decoration: none;
+        }
+        
+        .form-check-label a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-primary {
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #3a5699;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .form-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .form-divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #eaeaea;
+            z-index: 1;
+        }
+        
+        .form-divider span {
+            background: white;
+            padding: 0 15px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .social-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .social-btn.google {
+            color: #db4437;
+        }
+        
+        .social-btn.facebook {
+            color: #4267B2;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .form-footer a {
+            color: #4b6cb7;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 當前物價頁面樣式 */
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .price-item:last-child {
+            border-bottom: none;
+        }
+        
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .product-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .product-category {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .price-info {
+            text-align: right;
+        }
+        
+        .current-price {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .price-change {
+            font-size: 0.85rem;
+            margin-top: 3px;
+        }
+        
+        .price-change.positive {
+            color: #27ae60;
+        }
+        
+        .price-change.negative {
+            color: #e74c3c;
+        }
+        
+        .price-change.neutral {
+            color: #7f8c8d;
+        }
+        
+        .trend-indicator {
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        /* 上傳發票頁面樣式 */
+        .upload-area {
+            border: 2px dashed #4b6cb7;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #f8faff;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background-color: #eef2ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #4b6cb7;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .upload-btn {
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background: #3a5699;
+        }
+        
+        .recent-uploads h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .upload-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .upload-item:last-child {
+            border-bottom: none;
+        }
+        
+        .upload-date {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .upload-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        /* 我的頁面樣式 */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 32px;
+        }
+        
+        .profile-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .profile-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-item {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #eaeaea;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #4b6cb7;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .menu-list {
+            list-style: none;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8faff;
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+        }
+        
+        .menu-text {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        /* 底部導航欄 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #7f8c8d;
+            transition: all 0.3s;
+            flex: 1;
+            padding: 8px 0;
+        }
+        
+        .nav-item.active {
+            color: #4b6cb7;
+        }
+        
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* 登入提示 */
+        .login-prompt {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .login-prompt-icon {
+            font-size: 64px;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+        
+        .login-prompt-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        /* 價格過濾器 */
+        .price-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #4b6cb7;
+            color: white;
+            border-color: #4b6cb7;
+        }
+        
+        .filter-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .filter-btn.active:hover {
+            background: #3a5699;
+        }
+        
+        /* 價格搜尋 */
+        .price-search {
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            width: 100%;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4b6cb7;
+        }
+        
+        .search-btn {
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        /* 載入指示器 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .loading-spinner {
+            font-size: 48px;
+            color: #4b6cb7;
+            margin-bottom: 15px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 響應式設計 */
+        @media (min-width: 768px) {
+            .container {
+                padding: 30px 25px;
+            }
+            
+            header {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav-text {
+                font-size: 0.85rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .price-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .price-item {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                border: 1px solid #eaeaea;
+                border-bottom: none;
+            }
+            
+            .auth-page {
+                max-width: 450px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .price-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 網站標頭 -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h1>物價統計網</h1>
+                <div class="subtitle">即時追蹤商品價格變化，聰明消費</div>
+            </div>
+        </div>
+        
+        <!-- 登入/註冊按鈕（未登入時顯示） -->
+        <div id="authButtons" class="auth-buttons">
+            <button id="loginBtn" class="auth-btn">登入</button>
+            <button id="registerBtn" class="auth-btn">註冊</button>
+        </div>
+        
+        <!-- 使用者資訊（登入後顯示） -->
+        <div id="userInfo" class="user-info" style="display: none;">
+            <div class="user-avatar-small">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-name" id="headerUserName">王小明</div>
+        </div>
+    </header>
+    
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <!-- 當前物價頁面 (免登入) -->
+        <div id="page-price" class="page active">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-shopping-cart"></i> 當前熱門商品物價</h2>
+                
+                <div class="price-search">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="search-input" placeholder="搜尋商品名稱或類別...">
+                        <button id="searchBtn" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="price-filter">
+                    <button class="filter-btn active" data-category="all">全部商品</button>
+                    <button class="filter-btn" data-category="food">食品類</button>
+                    <button class="filter-btn" data-category="drink">飲料類</button>
+                    <button class="filter-btn" data-category="daily">日用品</button>
+                    <button class="filter-btn" data-category="trending">熱門商品</button>
+                </div>
+                
+                <div id="priceLoading" class="loading" style="display: none;">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    <p>載入商品價格中...</p>
+                </div>
+                
+                <div class="price-list">
+                    <!-- 物價項目將由JavaScript動態生成 -->
+                </div>
+                
+                <div id="noResults" style="text-align: center; padding: 30px; color: #7f8c8d; display: none;">
+                    <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px; color: #bdc3c7;"></i>
+                    <p>沒有找到符合的商品</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-chart-bar"></i> 價格趨勢分析</h2>
+                <p style="color: #7f8c8d; margin-bottom: 15px;">過去30天價格變化趨勢</p>
+                <div id="price-chart-placeholder" style="background: #f8faff; border-radius: 8px; padding: 40px 20px; text-align: center; color: #7f8c8d;">
+                    <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 15px; color: #bdc3c7;"></i>
+                    <p>價格趨勢圖表將在此顯示</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">登入會員可查看更詳細的分析報告</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-info-circle"></i> 關於價格數據</h2>
+                <p style="color: #555; margin-bottom: 15px;">
+                    本網站提供即時商品價格查詢服務，數據來源於全台各大賣場、超市及線上購物平台。
+                    價格每小時更新一次，提供最準確的市場行情。
+                </p>
+                <div style="background: #f8faff; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                    <p style="color: #4b6cb7; font-weight: 500; margin-bottom: 10px;">
+                        <i class="fas fa-lightbulb"></i> 加入會員解鎖更多功能：
+                    </p>
+                    <ul style="padding-left: 20px; color: #555;">
+                        <li style="margin-bottom: 8px;">上傳發票累積消費紀錄</li>
+                        <li style="margin-bottom: 8px;">個人化價格追蹤與提醒</li>
+                        <li style="margin-bottom: 8px;">詳細消費統計與分析報告</li>
+                        <li>會員專屬優惠與活動</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 上傳發票頁面 -->
+        <div id="page-upload" class="page">
+            <!-- 未登入時顯示提示 -->
+            <div id="uploadLoginPrompt" class="login-prompt" style="display: none;">
+                <div class="login-prompt-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="login-prompt-text">請先登入或註冊會員以上傳發票</div>
+                <button id="goToAuthFromUpload" class="btn-primary" style="width: auto; padding: 12px 30px;">前往登入/註冊</button>
+            </div>
+            
+            <!-- 登入後顯示內容 -->
+            <div id="uploadContent">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-receipt"></i> 上傳發票</h2>
+                    <div class="upload-area" id="uploadTrigger">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">點擊或拖放發票檔案到此處</div>
+                        <div class="upload-subtext">支援格式: JPG, PNG, PDF (最大檔案大小: 10MB)</div>
+                        <button class="upload-btn">選擇檔案</button>
+                    </div>
+                    
+                    <div class="recent-uploads">
+                        <h3>最近上傳記錄</h3>
+                        <div class="upload-list">
+                            <!-- 上傳記錄將由JavaScript動態生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-lightbulb"></i> 上傳提示</h2>
+                    <ul style="padding-left: 20px; color: #555;">
+                        <li style="margin-bottom: 10px;">請確保發票上的文字清晰可見</li>
+                        <li style="margin-bottom: 10px;">上傳後系統將自動識別商品與價格</li>
+                        <li style="margin-bottom: 10px;">上傳的發票將用於統計物價數據</li>
+                        <li>您可以在"我的"頁面查看上傳歷史</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 我的頁面 -->
+        <div id="page-profile" class="page">
+            <!-- 未登入時顯示提示 -->
+            <div id="profileLoginPrompt" class="login-prompt">
+                <div class="login-prompt-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="login-prompt-text">請先登入或註冊會員以查看個人資料</div>
+                <button id="goToAuthFromProfile" class="btn-primary" style="width: auto; padding: 12px 30px;">前往登入/註冊</button>
+            </div>
+            
+            <!-- 登入後顯示內容 -->
+            <div id="profileContent" style="display: none;">
+                <div class="card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profileUserName">王小明</h2>
+                            <p id="profileUserEmail">user@example.com</p>
+                            <p id="profileUserLevel">會員等級: 黃金會員</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statUploads">0</div>
+                            <div class="stat-label">上傳發票</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statContributions">0</div>
+                            <div class="stat-label">貢獻項目</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statTracked">0</div>
+                            <div class="stat-label">關注商品</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statSavings">0</div>
+                            <div class="stat-label">節省金額</div>
+                        </div>
+                    </div>
+                    
+                    <ul class="menu-list">
+                        <li class="menu-item" id="menuHistory">
+                            <div class="menu-icon" style="background-color: #4b6cb7;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="menu-text">上傳歷史記錄</div>
+                        </li>
+                        <li class="menu-item" id="menuFavorites">
+                            <div class="menu-icon" style="background-color: #27ae60;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="menu-text">我的收藏商品</div>
+                        </li>
+                        <li class="menu-item" id="menuAlerts">
+                            <div class="menu-icon" style="background-color: #e74c3c;">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="menu-text">價格提醒設定</div>
+                        </li>
+                        <li class="menu-item" id="menuSettings">
+                            <div class="menu-icon" style="background-color: #9b59b6;">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="menu-text">帳戶設定</div>
+                        </li>
+                        <li class="menu-item" id="menuLogout">
+                            <div class="menu-icon" style="background-color: #7f8c8d;">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div class="menu-text">登出</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-award"></i> 我的成就</h2>
+                    <div id="achievementsList" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
+                        <!-- 成就將由JavaScript動態生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 登入/註冊頁面 -->
+        <div id="page-auth" class="page">
+            <div class="auth-page">
+                <div class="card">
+                    <div class="auth-tabs">
+                        <div id="tabLogin" class="auth-tab active">登入帳號</div>
+                        <div id="tabRegister" class="auth-tab">註冊會員</div>
+                    </div>
+                    
+                    <!-- 登入表單 -->
+                    <form id="loginForm" class="auth-form active">
+                        <div id="loginError" style="background: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; display: none;">
+                            <i class="fas fa-exclamation-circle"></i> <span id="loginErrorText">錯誤訊息</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginEmail" class="form-label">電子郵件</label>
+                            <input type="email" id="loginEmail" class="form-control" placeholder="請輸入您的電子郵件" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPassword" class="form-label">密碼</label>
+                            <input type="password" id="loginPassword" class="form-control" placeholder="請輸入您的密碼" required>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" id="rememberMe" class="form-check-input">
+                            <label for="rememberMe" class="form-check-label">記住我</label>
+                            <a href="#" style="margin-left: auto; font-size: 0.85rem;">忘記密碼？</a>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" id="loginSubmitBtn">登入</button>
+                        
+                        <div class="form-divider">
+                            <span>或使用以下方式登入</span>
+                        </div>
+                        
+                        <div class="social-login">
+                            <button type="button" class="social-btn google">
+                                <i class="fab fa-google"></i>
+                                Google
+                            </button>
+                            <button type="button" class="social-btn facebook">
+                                <i class="fab fa-facebook-f"></i>
+                                Facebook
+                            </button>
+                        </div>
+                        
+                        <div class="form-footer">
+                            還沒有帳號？ <a href="#" id="switchToRegister">立即註冊</a>
+                        </div>
+                    </form>
+                    
+                    <!-- 註冊表單 -->
+                    <form id="registerForm" class="auth-form">
+                        <div id="registerError" style="background: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; display: none;">
+                            <i class="fas fa-exclamation-circle"></i> <span id="registerErrorText">錯誤訊息</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerName" class="form-label">姓名</label>
+                            <input type="text" id="registerName" class="form-control" placeholder="請輸入您的姓名" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerEmail" class="form-label">電子郵件</label>
+                            <input type="email" id="registerEmail" class="form-control" placeholder="請輸入您的電子郵件" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerPassword" class="form-label">密碼</label>
+                            <input type="password" id="registerPassword" class="form-control" placeholder="請設定您的密碼（至少8個字元）" required minlength="8">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerConfirmPassword" class="form-label">確認密碼</label>
+                            <input type="password" id="registerConfirmPassword" class="form-control" placeholder="請再次輸入密碼" required minlength="8">
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" id="agreeTerms" class="form-check-input" required>
+                            <label for="agreeTerms" class="form-check-label">
+                                我已閱讀並同意 <a href="#">服務條款</a> 與 <a href="#">隱私權政策</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" id="registerSubmitBtn">註冊會員</button>
+                        
+                        <div class="form-footer">
+                            已經有帳號？ <a href="#" id="switchToLogin">立即登入</a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-gift"></i> 註冊會員專享福利</h3>
+                    <ul style="padding-left: 20px; color: #555;">
+                        <li style="margin-bottom: 10px;">上傳發票累積點數，兌換超商購物金</li>
+                        <li style="margin-bottom: 10px;">自訂價格追蹤清單，即時接收降價通知</li>
+                        <li style="margin-bottom: 10px;">查看個人化消費統計與分析報告</li>
+                        <li>參與會員專屬活動，贏取限量好禮</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部導航欄 -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-page="page-price">
+            <div class="nav-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="nav-text">當前物價</div>
+        </a>
+        <a href="#" class="nav-item" data-page="page-upload">
+            <div class="nav-icon">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <div class="nav-text">上傳發票</div>
+        </a>
+        <a href="#" class="nav-item" data-page="page-profile">
+            <div class="nav-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="nav-text">我的</div>
+        </a>
+    </nav>
+    
+    <script>
+        // 使用者狀態管理
+        const UserState = {
+            isLoggedIn: false,
+            currentUser: null,
+            token: null
+        };
+        
+        // 模擬後端API URL
+        const API_BASE_URL = 'https://api.price-tracker.com/v1';
+        
+        // 商品價格數據
+        const priceData = [
+            { id: 1, name: "鮮乳 (1公升)", category: "乳製品", price: 85, change: 2.5, icon: "fas fa-wine-bottle", iconColor: "#3498db", tags: ["food", "trending"] },
+            { id: 2, name: "雞蛋 (10顆)", category: "蛋類", price: 65, change: -1.2, icon: "fas fa-egg", iconColor: "#f1c40f", tags: ["food", "trending"] },
+            { id: 3, name: "白米 (3公斤)", category: "五穀雜糧", price: 185, change: 0, icon: "fas fa-seedling", iconColor: "#2ecc71", tags: ["food"] },
+            { id: 4, name: "豬肉 (1公斤)", category: "肉類", price: 220, change: 5.3, icon: "fas fa-drumstick-bite", iconColor: "#e74c3c", tags: ["food", "trending"] },
+            { id: 5, name: "高麗菜 (1顆)", category: "蔬菜", price: 45, change: -3.1, icon: "fas fa-leaf", iconColor: "#27ae60", tags: ["food"] },
+            { id: 6, name: "香蕉 (1公斤)", category: "水果", price: 55, change: 1.8, icon: "fas fa-apple-alt", iconColor: "#f39c12", tags: ["food"] },
+            { id: 7, name: "衛生紙 (12卷)", category: "日用品", price: 120, change: 0.5, icon: "fas fa-toilet-paper", iconColor: "#95a5a6", tags: ["daily", "trending"] },
+            { id: 8, name: "泡麵 (5包)", category: "即食品", price: 95, change: -2.2, icon: "fas fa-utensils", iconColor: "#d35400", tags: ["food"] },
+            { id: 9, name: "瓶裝水 (24瓶)", category: "飲料", price: 150, change: 0, icon: "fas fa-wine-bottle", iconColor: "#3498db", tags: ["drink"] },
+            { id: 10, name: "可口可樂 (2公升)", category: "飲料", price: 55, change: 0, icon: "fas fa-wine-bottle", iconColor: "#e74c3c", tags: ["drink"] },
+            { id: 11, name: "洗衣精 (3公斤)", category: "日用品", price: 180, change: 1.2, icon: "fas fa-pump-soap", iconColor: "#3498db", tags: ["daily"] },
+            { id: 12, name: "吐司 (1條)", category: "麵包", price: 35, change: -1.5, icon: "fas fa-bread-slice", iconColor: "#f1c40f", tags: ["food"] }
+        ];
+        
+        // DOM元素
+        const priceList = document.querySelector('.price-list');
+        const uploadList = document.querySelector('.upload-list');
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+        const uploadTrigger = document.getElementById('uploadTrigger');
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const headerUserName = document.getElementById('headerUserName');
+        const profileUserName = document.getElementById('profileUserName');
+        const profileUserEmail = document.getElementById('profileUserEmail');
+        const profileUserLevel = document.getElementById('profileUserLevel');
+        
+        // 登入/註冊相關元素
+        const tabLogin = document.getElementById('tabLogin');
+        const tabRegister = document.getElementById('tabRegister');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const switchToRegister = document.getElementById('switchToRegister');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginError = document.getElementById('loginError');
+        const loginErrorText = document.getElementById('loginErrorText');
+        const registerError = document.getElementById('registerError');
+        const registerErrorText = document.getElementById('registerErrorText');
+        
+        // 頁面內容元素
+        const uploadLoginPrompt = document.getElementById('uploadLoginPrompt');
+        const uploadContent = document.getElementById('uploadContent');
+        const profileLoginPrompt = document.getElementById('profileLoginPrompt');
+        const profileContent = document.getElementById('profileContent');
+        const achievementsList = document.getElementById('achievementsList');
+        
+        // 從其他頁面跳轉到登入/註冊的按鈕
+        const goToAuthFromUpload = document.getElementById('goToAuthFromUpload');
+        const goToAuthFromProfile = document.getElementById('goToAuthFromProfile');
+        
+        // 登出按鈕
+        const menuLogout = document.getElementById('menuLogout');
+        
+        // 價格頁面元素
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const priceLoading = document.getElementById('priceLoading');
+        const noResults = document.getElementById('noResults');
+        
+        // 當前過濾狀態
+        let currentFilter = 'all';
+        let currentSearch = '';
+        
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查是否有已儲存的登入狀態
+            checkLoginStatus();
+            
+            // 載入商品價格
+            loadPriceData();
+            
+            // 設置導航點擊事件
+            setupNavigation();
+            
+            // 設置登入/註冊事件
+            setupAuthEvents();
+            
+            // 設置價格頁面事件
+            setupPricePageEvents();
+            
+            // 設置上傳區域點擊事件
+            if (uploadTrigger) {
+                uploadTrigger.addEventListener('click', function() {
+                    if (UserState.isLoggedIn) {
+                        simulateUpload();
+                    } else {
+                        showPage('page-auth');
+                        setActiveTab('login');
+                    }
+                });
+            }
+            
+            // 設置從其他頁面跳轉到登入/註冊的事件
+            if (goToAuthFromUpload) {
+                goToAuthFromUpload.addEventListener('click', function() {
+                    showPage('page-auth');
+                });
+            }
+            
+            if (goToAuthFromProfile) {
+                goToAuthFromProfile.addEventListener('click', function() {
+                    showPage('page-auth');
+                });
+            }
+            
+            // 設置登出事件
+            if (menuLogout) {
+                menuLogout.addEventListener('click', function() {
+                    logoutUser();
+                });
+            }
+        });
+        
+        // 檢查登入狀態
+        function checkLoginStatus() {
+            const savedToken = localStorage.getItem('priceTrackerToken');
+            const savedUser = localStorage.getItem('priceTrackerUser');
+            
+            if (savedToken && savedUser) {
+                try {
+                    UserState.token = savedToken;
+                    UserState.currentUser = JSON.parse(savedUser);
+                    UserState.isLoggedIn = true;
+                    updateUIForLoginState();
+                    
+                    // 載入使用者資料
+                    loadUserData();
+                } catch (e) {
+                    console.error('解析使用者資料時發生錯誤:', e);
+                    logoutUser();
+                }
+            }
+        }
+        
+        // 載入使用者資料
+        async function loadUserData() {
+            if (!UserState.isLoggedIn || !UserState.token) return;
+            
+            try {
+                // 模擬API呼叫取得使用者資料
+                const userData = await mockApiCall(`${API_BASE_URL}/user/profile`, 'GET', null, UserState.token);
+                
+                if (userData.success) {
+                    // 更新使用者資訊
+                    UserState.currentUser = {
+                        ...UserState.currentUser,
+                        ...userData.user
+                    };
+                    
+                    // 儲存更新後的使用者資料
+                    localStorage.setItem('priceTrackerUser', JSON.stringify(UserState.currentUser));
+                    
+                    // 更新UI
+                    updateUserProfileUI();
+                    
+                    // 載入使用者統計
+                    loadUserStats();
+                    
+                    // 載入使用者成就
+                    loadUserAchievements();
+                }
+            } catch (error) {
+                console.error('載入使用者資料失敗:', error);
+            }
+        }
+        
+        // 載入使用者統計
+        async function loadUserStats() {
+            if (!UserState.isLoggedIn) return;
+            
+            try {
+                const statsData = await mockApiCall(`${API_BASE_URL}/user/stats`, 'GET', null, UserState.token);
+                
+                if (statsData.success) {
+                    document.getElementById('statUploads').textContent = statsData.stats.uploads || 0;
+                    document.getElementById('statContributions').textContent = statsData.stats.contributions || 0;
+                    document.getElementById('statTracked').textContent = statsData.stats.tracked || 0;
+                    document.getElementById('statSavings').textContent = statsData.stats.savings || 0;
+                }
+            } catch (error) {
+                console.error('載入使用者統計失敗:', error);
+            }
+        }
+        
+        // 載入使用者成就
+        async function loadUserAchievements() {
+            if (!UserState.isLoggedIn) return;
+            
+            try {
+                const achievementsData = await mockApiCall(`${API_BASE_URL}/user/achievements`, 'GET', null, UserState.token);
+                
+                if (achievementsData.success) {
+                    renderAchievements(achievementsData.achievements);
+                }
+            } catch (error) {
+                console.error('載入使用者成就失敗:', error);
+            }
+        }
+        
+        // 渲染成就列表
+        function renderAchievements(achievements) {
+            if (!achievementsList) return;
+            
+            achievementsList.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const achievementEl = document.createElement('div');
+                achievementEl.style.background = achievement.earned ? '#e8f5e9' : '#f5f5f5';
+                achievementEl.style.borderRadius = '8px';
+                achievementEl.style.padding = '12px';
+                achievementEl.style.display = 'flex';
+                achievementEl.style.alignItems = 'center';
+                achievementEl.style.width = '100%';
+                achievementEl.style.maxWidth = '300px';
+                
+                achievementEl.innerHTML = `
+                    <div style="background: ${achievement.earned ? '#4caf50' : '#9e9e9e'}; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                        <i class="${achievement.icon}"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500;">${achievement.name}</div>
+                        <div style="font-size: 0.8rem; color: #7f8c8d;">${achievement.description}</div>
+                    </div>
+                `;
+                
+                achievementsList.appendChild(achievementEl);
+            });
+        }
+        
+        // 設置導航事件
+        function setupNavigation() {
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 獲取目標頁面ID
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // 如果未登入且要前往需要登入的頁面，顯示登入提示
+                    if (!UserState.isLoggedIn && (targetPage === 'page-upload' || targetPage === 'page-profile')) {
+                        // 顯示目標頁面的登入提示
+                        showPage(targetPage);
+                        updateLoginPrompts();
+                        return;
+                    }
+                    
+                    // 更新導航狀態
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 顯示對應頁面
+                    showPage(targetPage);
+                });
+            });
+        }
+        
+        // 顯示指定頁面
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+                if (page.id === pageId) {
+                    page.classList.add('active');
+                }
+            });
+            
+            // 更新導航按鈕狀態
+            navItems.forEach(nav => {
+                if (nav.getAttribute('data-page') === pageId) {
+                    nav.classList.add('active');
+                } else {
+                    nav.classList.remove('active');
+                }
+            });
+        }
+        
+        // 設置登入/註冊事件
+        function setupAuthEvents() {
+            // 登入/註冊標籤切換
+            tabLogin.addEventListener('click', function() {
+                setActiveTab('login');
+            });
+            
+            tabRegister.addEventListener('click', function() {
+                setActiveTab('register');
+            });
+            
+            // 表單內切換連結
+            switchToRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveTab('register');
+            });
+            
+            switchToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveTab('login');
+            });
+            
+            // 標頭登入/註冊按鈕
+            loginBtn.addEventListener('click', function() {
+                showPage('page-auth');
+                setActiveTab('login');
+            });
+            
+            registerBtn.addEventListener('click', function() {
+                showPage('page-auth');
+                setActiveTab('register');
+            });
+            
+            // 登入表單提交
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                // 簡單驗證
+                if (!email || !password) {
+                    showLoginError('請填寫電子郵件和密碼');
+                    return;
+                }
+                
+                // 登入
+                await loginUser(email, password);
+            });
+            
+            // 註冊表單提交
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+                const agreeTerms = document.getElementById('agreeTerms').checked;
+                
+                // 驗證表單
+                if (!name || !email || !password || !confirmPassword) {
+                    showRegisterError('請填寫所有欄位');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showRegisterError('密碼與確認密碼不符');
+                    return;
+                }
+                
+                if (password.length < 8) {
+                    showRegisterError('密碼長度至少需要8個字元');
+                    return;
+                }
+                
+                if (!agreeTerms) {
+                    showRegisterError('請同意服務條款與隱私權政策');
+                    return;
+                }
+                
+                // 註冊
+                await registerUser(name, email, password);
+            });
+        }
+        
+        // 設置價格頁面事件
+        function setupPricePageEvents() {
+            // 搜尋功能
+            searchBtn.addEventListener('click', function() {
+                currentSearch = searchInput.value.trim().toLowerCase();
+                filterPriceData();
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    currentSearch = searchInput.value.trim().toLowerCase();
+                    filterPriceData();
+                }
+            });
+            
+            // 過濾功能
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 更新按鈕狀態
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新過濾條件
+                    currentFilter = this.getAttribute('data-category');
+                    filterPriceData();
+                });
+            });
+        }
+        
+        // 載入價格數據
+        async function loadPriceData() {
+            // 顯示載入狀態
+            priceLoading.style.display = 'block';
+            priceList.innerHTML = '';
+            
+            try {
+                // 模擬API呼叫
+                const data = await mockApiCall(`${API_BASE_URL}/prices`, 'GET');
+                
+                // 模擬延遲
+                setTimeout(() => {
+                    priceLoading.style.display = 'none';
+                    
+                    if (data.success) {
+                        // 實際應用中會使用API返回的數據
+                        // 這裡我們使用本地數據
+                        filterPriceData();
+                    } else {
+                        priceList.innerHTML = '<div style="text-align: center; padding: 30px; color: #e74c3c;">載入價格數據失敗，請稍後再試</div>';
+                    }
+                }, 800);
+            } catch (error) {
+                priceLoading.style.display = 'none';
+                priceList.innerHTML = '<div style="text-align: center; padding: 30px; color: #e74c3c;">載入價格數據失敗，請檢查網路連線</div>';
+            }
+        }
+        
+        // 過濾價格數據
+        function filterPriceData() {
+            let filteredData = [...priceData];
+            
+            // 應用類別過濾
+            if (currentFilter !== 'all') {
+                filteredData = filteredData.filter(item => 
+                    item.tags && item.tags.includes(currentFilter)
+                );
+            }
+            
+            // 應用搜尋過濾
+            if (currentSearch) {
+                filteredData = filteredData.filter(item => 
+                    item.name.toLowerCase().includes(currentSearch) || 
+                    item.category.toLowerCase().includes(currentSearch)
+                );
+            }
+            
+            // 顯示結果
+            renderFilteredPriceData(filteredData);
+        }
+        
+        // 渲染過濾後的價格數據
+        function renderFilteredPriceData(data) {
+            if (!priceList) return;
+            
+            priceList.innerHTML = '';
+            
+            if (data.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            data.forEach(item => {
+                // 根據價格變化決定顯示樣式
+                let changeClass = 'neutral';
+                let changeIcon = '';
+                
+                if (item.change > 0) {
+                    changeClass = 'positive';
+                    changeIcon = '<i class="fas fa-arrow-up trend-indicator"></i>';
+                } else if (item.change < 0) {
+                    changeClass = 'negative';
+                    changeIcon = '<i class="fas fa-arrow-down trend-indicator"></i>';
+                }
+                
+                // 建立價格項目HTML
+                const priceItem = document.createElement('div');
+                priceItem.className = 'price-item';
+                priceItem.innerHTML = `
+                    <div class="product-info">
+                        <div class="product-icon" style="background-color: ${item.iconColor}">
+                            <i class="${item.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="product-name">${item.name}</div>
+                            <div class="product-category">${item.category}</div>
+                        </div>
+                    </div>
+                    <div class="price-info">
+                        <div class="current-price">$${item.price}</div>
+                        <div class="price-change ${changeClass}">
+                            ${item.change !== 0 ? Math.abs(item.change) + '%' : '持平'} ${changeIcon}
+                        </div>
+                    </div>
+                `;
+                
+                priceList.appendChild(priceItem);
+            });
+        }
+        
+        // 設置活動標籤
+        function setActiveTab(tab) {
+            if (tab === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                loginError.style.display = 'none';
+                registerError.style.display = 'none';
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                registerForm.classList.add('active');
+                loginForm.classList.remove('active');
+                loginError.style.display = 'none';
+                registerError.style.display = 'none';
+            }
+        }
+        
+        // 顯示登入錯誤
+        function showLoginError(message) {
+            loginErrorText.textContent = message;
+            loginError.style.display = 'block';
+        }
+        
+        // 顯示註冊錯誤
+        function showRegisterError(message) {
+            registerErrorText.textContent = message;
+            registerError.style.display = 'block';
+        }
+        
+        // 登入使用者
+        async function loginUser(email, password) {
+            // 顯示載入狀態
+            const submitBtn = loginForm.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '登入中...';
+            submitBtn.disabled = true;
+            loginError.style.display = 'none';
+            
+            try {
+                // 模擬API呼叫
+                const response = await mockApiCall(`${API_BASE_URL}/auth/login`, 'POST', {
+                    email: email,
+                    password: password
+                });
+                
+                if (response.success) {
+                    // 登入成功
+                    UserState.token = response.token;
+                    UserState.currentUser = response.user;
+                    UserState.isLoggedIn = true;
+                    
+                    // 儲存登入狀態
+                    localStorage.setItem('priceTrackerToken', UserState.token);
+                    localStorage.setItem('priceTrackerUser', JSON.stringify(UserState.currentUser));
+                    
+                    // 更新UI
+                    updateUIForLoginState();
+                    
+                    // 載入使用者資料
+                    await loadUserData();
+                    
+                    // 顯示成功訊息
+                    alert(`歡迎回來，${UserState.currentUser.name}！`);
+                    
+                    // 跳轉到當前物價頁面
+                    showPage('page-price');
+                } else {
+                    // 登入失敗
+                    showLoginError(response.message || '電子郵件或密碼錯誤，請重新輸入');
+                }
+            } catch (error) {
+                showLoginError('登入失敗，請稍後再試');
+            } finally {
+                // 恢復按鈕狀態
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // 註冊使用者
+        async function registerUser(name, email, password) {
+            // 顯示載入狀態
+            const submitBtn = registerForm.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '註冊中...';
+            submitBtn.disabled = true;
+            registerError.style.display = 'none';
+            
+            try {
+                // 模擬API呼叫
+                const response = await mockApiCall(`${API_BASE_URL}/auth/register`, 'POST', {
+                    name: name,
+                    email: email,
+                    password: password
+                });
+                
+                if (response.success) {
+                    // 註冊成功
+                    UserState.token = response.token;
+                    UserState.currentUser = response.user;
+                    UserState.isLoggedIn = true;
+                    
+                    // 儲存登入狀態
+                    localStorage.setItem('priceTrackerToken', UserState.token);
+                    localStorage.setItem('priceTrackerUser', JSON.stringify(UserState.currentUser));
+                    
+                    // 更新UI
+                    updateUIForLoginState();
+                    
+                    // 載入使用者資料
+                    await loadUserData();
+                    
+                    // 顯示成功訊息
+                    alert(`註冊成功！歡迎加入物價統計網，${UserState.currentUser.name}！`);
+                    
+                    // 跳轉到當前物價頁面
+                    showPage('page-price');
+                } else {
+                    // 註冊失敗
+                    showRegisterError(response.message || '註冊失敗，請稍後再試');
+                }
+            } catch (error) {
+                showRegisterError('註冊失敗，請稍後再試');
+            } finally {
+                // 恢復按鈕狀態
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // 更新使用者資料UI
+        function updateUserProfileUI() {
+            if (UserState.currentUser) {
+                profileUserName.textContent = UserState.currentUser.name;
+                profileUserEmail.textContent = UserState.currentUser.email;
+                profileUserLevel.textContent = `會員等級: ${UserState.currentUser.level || '一般會員'}`;
+            }
+        }
+        
+        // 登出使用者
+        function logoutUser() {
+            // 模擬API呼叫登出
+            mockApiCall(`${API_BASE_URL}/auth/logout`, 'POST', {}, UserState.token)
+                .catch(error => console.error('登出API錯誤:', error));
+            
+            // 清除本地狀態
+            UserState.isLoggedIn = false;
+            UserState.currentUser = null;
+            UserState.token = null;
+            localStorage.removeItem('priceTrackerToken');
+            localStorage.removeItem('priceTrackerUser');
+            
+            // 更新UI
+            updateUIForLoginState();
+            
+            // 顯示登入頁面
+            showPage('page-auth');
+            
+            // 顯示登出訊息
+            alert('您已成功登出');
+        }
+        
+        // 更新UI以反映登入狀態
+        function updateUIForLoginState() {
+            if (UserState.isLoggedIn && UserState.currentUser) {
+                // 顯示使用者資訊，隱藏登入/註冊按鈕
+                authButtons.style.display = 'none';
+                userInfo.style.display = 'flex';
+                headerUserName.textContent = UserState.currentUser.name;
+                
+                // 更新使用者資料UI
+                updateUserProfileUI();
+                
+                // 顯示所有頁面內容
+                uploadLoginPrompt.style.display = 'none';
+                uploadContent.style.display = 'block';
+                profileLoginPrompt.style.display = 'none';
+                profileContent.style.display = 'block';
+                
+                // 載入上傳記錄
+                loadUploadHistory();
+            } else {
+                // 顯示登入/註冊按鈕，隱藏使用者資訊
+                authButtons.style.display = 'flex';
+                userInfo.style.display = 'none';
+                
+                // 顯示登入提示
+                updateLoginPrompts();
+            }
+        }
+        
+        // 更新登入提示顯示
+        function updateLoginPrompts() {
+            // 檢查當前活動頁面
+            const activePage = document.querySelector('.page.active');
+            
+            // 根據頁面顯示對應的登入提示
+            if (activePage.id === 'page-upload') {
+                uploadLoginPrompt.style.display = 'block';
+                uploadContent.style.display = 'none';
+            } else if (activePage.id === 'page-profile') {
+                profileLoginPrompt.style.display = 'block';
+                profileContent.style.display = 'none';
+            }
+        }
+        
+        // 模擬API呼叫
+        async function mockApiCall(url, method = 'GET', data = null, token = null) {
+            // 模擬網路延遲
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // 解析URL路徑
+            const path = url.replace(API_BASE_URL, '');
+            
+            // 處理不同的API端點
+            switch (path) {
+                case '/auth/login':
+                    if (method === 'POST' && data) {
+                        // 模擬登入驗證
+                        const users = JSON.parse(localStorage.getItem('priceTrackerUsers') || '[]');
+                        const user = users.find(u => u.email === data.email && u.password === data.password);
+                        
+                        if (user) {
+                            return {
+                                success: true,
+                                token: 'mock_jwt_token_' + Date.now(),
+                                user: {
+                                    id: user.id || Date.now(),
+                                    name: user.name,
+                                    email: user.email,
+                                    level: user.level || '黃金會員',
+                                    joinDate: user.joinDate || new Date().toISOString().split('T')[0]
+                                },
+                                message: '登入成功'
+                            };
+                        } else {
+                            return {
+                                success: false,
+                                message: '電子郵件或密碼錯誤'
+                            };
+                        }
+                    }
+                    break;
+                    
+                case '/auth/register':
+                    if (method === 'POST' && data) {
+                        // 模擬註冊
+                        const users = JSON.parse(localStorage.getItem('priceTrackerUsers') || '[]');
+                        
+                        // 檢查是否已註冊
+                        if (users.some(u => u.email === data.email)) {
+                            return {
+                                success: false,
+                                message: '此電子郵件已被註冊'
+                            };
+                        }
+                        
+                        // 建立新使用者
+                        const newUser = {
+                            id: Date.now(),
+                            name: data.name,
+                            email: data.email,
+                            password: data.password,
+                            level: '一般會員',
+                            joinDate: new Date().toISOString().split('T')[0]
+                        };
+                        
+                        users.push(newUser);
+                        localStorage.setItem('priceTrackerUsers', JSON.stringify(users));
+                        
+                        return {
+                            success: true,
+                            token: 'mock_jwt_token_' + Date.now(),
+                            user: {
+                                id: newUser.id,
+                                name: newUser.name,
+                                email: newUser.email,
+                                level: newUser.level,
+                                joinDate: newUser.joinDate
+                            },
+                            message: '註冊成功'
+                        };
+                    }
+                    break;
+                    
+                case '/user/profile':
+                    if (method === 'GET' && token) {
+                        // 模擬取得使用者資料
+                        return {
+                            success: true,
+                            user: {
+                                level: '黃金會員',
+                                points: 1250,
+                                memberSince: '2023-05-15'
+                            }
+                        };
+                    }
+                    break;
+                    
+                case '/user/stats':
+                    if (method === 'GET' && token) {
+                        // 模擬取得使用者統計
+                        return {
+                            success: true,
+                            stats: {
+                                uploads: Math.floor(Math.random() * 50) + 10,
+                                contributions: Math.floor(Math.random() * 200) + 50,
+                                tracked: Math.floor(Math.random() * 30) + 5,
+                                savings: Math.floor(Math.random() * 1000) + 200
+                            }
+                        };
+                    }
+                    break;
+                    
+                case '/user/achievements':
+                    if (method === 'GET' && token) {
+                        // 模擬取得使用者成就
+                        return {
+                            success: true,
+                            achievements: [
+                                { id: 1, name: '發票達人', description: '已上傳超過30張發票', icon: 'fas fa-upload', earned: true },
+                                { id: 2, name: '價格獵人', description: '發現10次價格異常波動', icon: 'fas fa-chart-line', earned: true },
+                                { id: 3, name: '忠實會員', description: '加入會員超過6個月', icon: 'fas fa-user-clock', earned: true },
+                                { id: 4, name: '數據貢獻者', description: '貢獻100個價格數據', icon: 'fas fa-database', earned: false },
+                                { id: 5, name: '省錢達人', description: '累計節省超過2000元', icon: 'fas fa-piggy-bank', earned: false }
+                            ]
+                        };
+                    }
+                    break;
+                    
+                case '/prices':
+                    if (method === 'GET') {
+                        // 模擬取得價格數據
+                        return {
+                            success: true,
+                            data: priceData,
+                            timestamp: new Date().toISOString(),
+                            count: priceData.length
+                        };
+                    }
+                    break;
+            }
+            
+            // 預設回應
+            return {
+                success: false,
+                message: 'API請求失敗'
+            };
+        }
+        
+        // 模擬上傳功能
+        async function simulateUpload() {
+            // 顯示上傳中狀態
+            const uploadArea = uploadTrigger;
+            const originalHTML = uploadArea.innerHTML;
+            
+            uploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="upload-text">上傳中...</div>
+                <div class="upload-subtext">請稍候，正在處理您的發票</div>
+            `;
+            
+            uploadArea.style.pointerEvents = 'none';
+            
+            try {
+                // 模擬API上傳
+                const response = await mockApiCall(`${API_BASE_URL}/upload/receipt`, 'POST', {
+                    fileName: 'receipt_' + Date.now() + '.jpg',
+                    fileSize: Math.floor(Math.random() * 5000) + 1000
+                }, UserState.token);
+                
+                // 模擬延遲
+                setTimeout(() => {
+                    // 恢復上傳區域
+                    uploadArea.innerHTML = originalHTML;
+                    uploadArea.style.pointerEvents = 'auto';
+                    
+                    if (response.success) {
+                        // 顯示成功訊息
+                        alert('發票上傳成功！系統將自動識別商品資訊。');
+                        
+                        // 重新載入上傳記錄
+                        loadUploadHistory();
+                        
+                        // 更新個人資料統計
+                        loadUserStats();
+                    } else {
+                        alert('上傳失敗，請稍後再試');
+                    }
+                }, 2000);
+            } catch (error) {
+                uploadArea.innerHTML = originalHTML;
+                uploadArea.style.pointerEvents = 'auto';
+                alert('上傳失敗，請檢查網路連線');
+            }
+        }
+        
+        // 載入上傳記錄
+        async function loadUploadHistory() {
+            if (!uploadList) return;
+            
+            try {
+                // 模擬API呼叫
+                const response = await mockApiCall(`${API_BASE_URL}/upload/history`, 'GET', null, UserState.token);
+                
+                if (response.success && response.history) {
+                    renderUploadHistory(response.history);
+                } else {
+                    renderMockUploadHistory();
+                }
+            } catch (error) {
+                renderMockUploadHistory();
+            }
+        }
+        
+        // 渲染上傳記錄
+        function renderUploadHistory(history) {
+            if (!uploadList) return;
+            
+            uploadList.innerHTML = '';
+            
+            history.forEach(item => {
+                // 根據狀態決定顯示樣式
+                const statusClass = item.status === 'processed' ? 'status-success' : 'status-pending';
+                const statusText = item.status === 'processed' ? '已處理' : '處理中';
+                
+                // 建立上傳項目HTML
+                const uploadItem = document.createElement('div');
+                uploadItem.className = 'upload-item';
+                uploadItem.innerHTML = `
+                    <div>
+                        <div style="font-weight: 500;">${item.store}</div>
+                        <div class="upload-date">${item.date} • ${item.items}個商品</div>
+                    </div>
+                    <div class="upload-status ${statusClass}">${statusText}</div>
+                `;
+                
+                uploadList.appendChild(uploadItem);
+            });
+        }
+        
+        // 渲染模擬上傳記錄
+        function renderMockUploadHistory() {
+            const mockHistory = [
+                { id: 1, date: "2023-10-15", store: "全聯福利中心", items: 12, status: "processed" },
+                { id: 2, date: "2023-10-14", store: "家樂福", items: 8, status: "processed" },
+                { id: 3, date: "2023-10-12", store: "頂好超市", items: 5, status: "processed" },
+                { id: 4, date: "2023-10-10", store: "7-ELEVEN", items: 3, status: "pending" }
+            ];
+            
+            renderUploadHistory(mockHistory);
+        }
+    </script>
+</body>
+</html>
